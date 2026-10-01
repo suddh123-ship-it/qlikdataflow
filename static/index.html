@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Qlik Flow Copilot</title>
+  <style>
+    :root { color-scheme: light; --ink:#17211f; --muted:#5d6d69; --line:#dce7e2; --green:#147d64; --mint:#e6f4ef; --paper:#f7faf8; --white:#fff; --orange:#a95416; }
+    * { box-sizing:border-box }
+    body { margin:0; background:var(--paper); color:var(--ink); font:15px/1.5 Inter,Segoe UI,Arial,sans-serif }
+    .shell { max-width:1180px; padding:36px 24px 64px; margin:auto }
+    header { display:flex; align-items:center; gap:14px; margin-bottom:28px }
+    .mark { width:42px;height:42px;border-radius:14px;background:var(--green);color:white;display:grid;place-items:center;font-weight:800;font-size:20px }
+    h1 { margin:0;font-size:25px;letter-spacing:-.03em }
+    .tagline { color:var(--muted);font-size:14px;margin-top:2px }
+    .layout { display:grid;grid-template-columns:minmax(0,1.04fr) minmax(360px,.96fr);gap:20px;align-items:start }
+    .card { background:var(--white);border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:0 4px 18px #152f2510 }
+    .card h2 { margin:0 0 5px;font-size:18px;letter-spacing:-.02em }
+    .sub { color:var(--muted);font-size:13px;margin:0 0 18px }
+    label { display:block;font-weight:650;font-size:13px;margin:14px 0 6px }
+    input,select,textarea { width:100%;border:1px solid #cddbd5;border-radius:9px;background:white;padding:10px 11px;color:var(--ink);font:inherit;outline:none }
+    input:focus,select:focus,textarea:focus { border-color:var(--green);box-shadow:0 0 0 3px #147d641a }
+    textarea { min-height:124px;resize:vertical }
+    .grid2 { display:grid;grid-template-columns:1fr 1fr;gap:12px }
+    .filebox { border:1px dashed #a7bdb3;border-radius:11px;padding:14px;background:#fbfdfc }
+    .filebox input { border:0;padding:4px 0 0;background:transparent }
+    .template-note { color:var(--muted);font-size:12px;margin:5px 0 0 }
+    .check { display:flex;align-items:flex-start;gap:9px;color:var(--muted);font-size:12px;margin:12px 0 }
+    .check input { width:auto;margin-top:3px }
+    button { border:0;border-radius:9px;background:var(--green);color:white;font:650 14px inherit;padding:11px 16px;cursor:pointer }
+    button:hover { background:#0e6b55 }
+    button:disabled { opacity:.6;cursor:wait }
+    .secondary { background:#edf4f1;color:var(--ink) }
+    .secondary:hover { background:#dfece6 }
+    .actions { display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:17px }
+    .status { min-height:22px;color:var(--muted);font-size:13px;margin-top:10px }
+    .status.error { color:#aa2d28 }
+    .right-card { min-height:500px }
+    .empty { border:1px dashed var(--line);border-radius:12px;min-height:350px;display:grid;place-items:center;text-align:center;padding:30px;color:var(--muted) }
+    .empty strong { display:block;color:var(--ink);font-size:15px;margin-bottom:5px }
+    .flow-head { display:flex;justify-content:space-between;gap:12px;align-items:flex-start }
+    .pill { white-space:nowrap;background:var(--mint);color:var(--green);padding:4px 9px;border-radius:999px;font-size:11px;font-weight:700 }
+    .flowline { display:flex;flex-direction:column;gap:8px;margin:16px 0 }
+    .node { border:1px solid var(--line);background:#fbfdfc;border-radius:10px;padding:10px 12px;display:flex;justify-content:space-between;gap:10px }
+    .node small { color:var(--muted) }
+    .arrow { color:#92a69c;text-align:center;line-height:10px }
+    .warning { border-left:3px solid #d9923b;background:#fff7eb;color:#704419;padding:10px 12px;border-radius:4px 8px 8px 4px;font-size:12px;margin:13px 0 }
+    details { margin-top:12px }
+    summary { cursor:pointer;color:var(--green);font-weight:650;font-size:13px }
+    pre { white-space:pre-wrap;word-break:break-word;max-height:220px;overflow:auto;background:#14231f;color:#e2f2eb;padding:12px;border-radius:9px;font-size:11px }
+    .foot { color:var(--muted);font-size:12px;margin-top:18px }
+    @media (max-width:850px) { .layout { grid-template-columns:1fr }.right-card { min-height:300px } }
+    @media (max-width:540px) { .shell { padding:22px 14px 42px }.grid2 { grid-template-columns:1fr }.card { padding:17px } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div class="mark">Q</div>
+      <div><h1>Qlik Flow Copilot</h1><div class="tagline">Describe a preparation flow. Review it. Download a .dfw draft.</div></div>
+    </header>
+    <div class="layout">
+      <section class="card">
+        <h2>Build a flow draft</h2>
+        <p class="sub">The bundled sample loads automatically; you can optionally choose another .dfw. The LLM sees field names and your request, not source rows.</p>
+        <label for="provider">LLM provider</label><select id="provider"><option value="openai">OpenAI</option><option value="anthropic">Claude (Anthropic)</option></select>
+        <p class="template-note">The app selects a default model automatically.</p>
+        <label for="apiKey">API key</label><input id="apiKey" type="password" autocomplete="off" placeholder="Paste the selected provider's API key"><p class="template-note">Use a key created by the selected provider. Paste the key itself, not a file path.</p>
+        <div class="filebox"><strong>Qlik template: optional</strong><p class="template-note" id="templateStatus">Loading the bundled myflow1 sample… No upload is needed.</p><p class="template-note" id="sourceSummary">Source and target details load with the template.</p><details><summary>Use a different .dfw template</summary><input id="templateFile" type="file" accept=".dfw,.json,application/json"><p class="template-note">Choose this only if you want to base the draft on a different Qlik source and target.</p></details></div>
+        <p class="template-note">Demonstrated transformations: replace empty values, split text, format dates, uppercase, add, forked inner join, and sum aggregate. The bundled example has one source, so its join combines forked branches of that same source.</p>
+        <div class="grid2">
+          <div><label for="flowName">New flow name</label><input id="flowName" value="Plain English Flow"></div>
+          <div><label for="description">Description (optional)</label><input id="description" placeholder="What this flow prepares"></div>
+        </div>
+        <label for="prompt">What should the flow do?</label>
+        <textarea id="prompt" placeholder="Example: Replace empty sales, quantity, discount, and profit values with 0. Split customer_name into first and last name. Format order_date and ship_date as YYYYMMDD."></textarea>
+        <div class="check"><input type="checkbox" id="review" checked><span>I will review the generated plan before importing or running it in Qlik.</span></div>
+        <div class="actions"><button id="generate">Generate draft</button><button id="download" class="secondary" disabled>Download .dfw</button></div>
+        <div class="status" id="status" aria-live="polite"></div>
+        <p class="foot">Runs on this computer at <code>127.0.0.1</code>. API keys are sent only to the selected model provider for the request and are not saved by this app.</p>
+      </section>
+      <section class="card right-card">
+        <div class="flow-head"><div><h2>Review</h2><p class="sub">The generated chain appears here before download.</p></div><span id="readyPill" class="pill">WAITING</span></div>
+        <div id="result" class="empty"><div><strong>Your draft will appear here</strong>Generate a plan to review the flow steps and inspect the .dfw JSON.</div></div>
+      </section>
+    </div>
+  </main>
+  <script>
+    let template = null;
+    let generated = null;
+    const $ = (id) => document.getElementById(id);
+    const status = (message, isError=false) => { $('status').textContent = message; $('status').className = 'status' + (isError ? ' error' : ''); };
+    const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+    function updateTemplateSummary() {
+      if (!template) { $('sourceSummary').textContent = 'Source and target details load with the template.'; return; }
+      const nodes = template.dataflow?.graph?.nodes || [];
+      const source = nodes.find(node => node.type === 'source');
+      const target = nodes.find(node => node.type === 'target');
+      const entityId = source?.component?.properties?.dataEntity?.entityId;
+      const sourceMeta = (template.sources || []).find(item => item.sourceId === entityId) || (template.sources || [])[0];
+      const connector = Object.keys(sourceMeta?.connections || {})[0] || 'connection from template';
+      const tables = (sourceMeta?.tables || []).map(table => table.tableName).filter(Boolean).join(', ');
+      const config = target?.component?.properties?.configuration || {};
+      const settings = config.settings || {};
+      const outputFile = [settings.fileName, settings.extension].filter(Boolean).join('.');
+      const destination = [settings.spaceName, settings.connectionName, outputFile].filter(Boolean).join(' / ');
+      $('sourceSummary').textContent = `Current source: ${source?.label || 'source from template'}${tables ? ` · table: ${tables}` : ''} · ${connector}. Target: ${destination || target?.label || 'target from template'}.`;
+    }
+
+    async function loadDefaultTemplate() {
+      try {
+        const response = await fetch('/api/template');
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Could not load sample.');
+        template = data.template;
+        $('templateStatus').textContent = 'Using the bundled myflow1 sample (PostgreSQL source → processors → QVD target). No upload is needed.';
+        updateTemplateSummary();
+      } catch (error) {
+        template = null;
+        $('templateStatus').textContent = 'The bundled sample could not be loaded. You can select a .dfw export below.';
+        updateTemplateSummary();
+      }
+    }
+    $('templateFile').addEventListener('change', async (event) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      try {
+        template = JSON.parse(await file.text());
+        if (!template?.dataflow?.graph?.nodes) throw new Error('This file has no dataflow graph.');
+        $('templateStatus').textContent = `Template loaded: ${file.name}`;
+        updateTemplateSummary();
+        generated = null;
+        $('download').disabled = true;
+        $('readyPill').textContent = 'TEMPLATE LOADED';
+        $('result').className = 'empty';
+        $('result').innerHTML = '<div><strong>Template ready</strong>Write your plain-English request and generate a draft.</div>';
+      } catch (error) {
+        template = null;
+        $('templateStatus').textContent = `Could not read template: ${error.message}`;
+        updateTemplateSummary();
+      }
+    });
+
+    function displayGenerated(data) {
+      const graph = data.dfw.dataflow.graph;
+      const ordered = graph.nodes;
+      const opLabels = { 'analyticsSource':'Source', 'analyticsTarget':'Target', 'data-cleansing':'Cleanse', 'split-field':'Split fields', 'date':'Dates', 'fork':'Fork', 'strings':'Strings uppercase', 'math':'Math add', 'join':'Inner join', 'aggregate':'Sum aggregate' };
+      const nodeHtml = ordered.map((node, i) => {
+        const type = node.component?.type || node.type;
+        const sub = node.type === 'source' ? 'From template' : node.type === 'target' ? 'To template target' : (opLabels[type] || type);
+        return `${i ? '<div class="arrow">↓</div>' : ''}<div class="node"><span><strong>${esc(node.label)}</strong><br><small>${esc(sub)}</small></span><span class="pill">${esc(node.type.toUpperCase())}</span></div>`;
+      }).join('');
+      $('readyPill').textContent = 'DRAFT READY';
+      $('result').className = '';
+      $('result').innerHTML = `<div class="flowline">${nodeHtml}</div><div class="warning">This prototype writes a .dfw using the structure of the supplied export. Qlik’s public docs don’t specify the graph authoring schema; import a draft into a test space and review it before running.</div><details><summary>Show generated .dfw JSON</summary><pre>${esc(JSON.stringify(data.dfw, null, 2))}</pre></details>`;
+    }
+
+    $('generate').addEventListener('click', async () => {
+      if (!template) await loadDefaultTemplate();
+      if (!template) { status('The sample could not be loaded. Choose a valid .dfw from “Use a different .dfw template.”', true); return; }
+      if (!$('review').checked) { status('Review must stay enabled for this prototype.', true); return; }
+      const provider = $('provider').value;
+      const apiKey = $('apiKey').value.trim();
+      if (!apiKey) { status('Enter an API key for the selected provider.', true); return; }
+      const expectedPrefix = provider === 'openai' ? /^sk-/i : /^sk-ant-/i;
+      if (!expectedPrefix.test(apiKey)) {
+        const providerName = provider === 'openai' ? 'OpenAI' : 'Anthropic';
+        status(`This does not look like an ${providerName} API key. Check the provider selection and paste the key itself, not a file path.`, true);
+        return;
+      }
+      $('generate').disabled = true;
+      $('download').disabled = true;
+      $('readyPill').textContent = 'WORKING';
+      status('Asking the model to draft a supported transformation plan…');
+      try {
+        const payload = {
+          provider,
+          api_key: apiKey,
+          prompt: $('prompt').value.trim(),
+          name: $('flowName').value.trim(),
+          description: $('description').value.trim(),
+          template,
+        };
+        const response = await fetch('/api/generate', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Generation failed.');
+        generated = data.dfw;
+        displayGenerated(data);
+        $('download').disabled = false;
+        status(`Draft created with ${data.dfw.dataflow.graph.nodes.length - 2} processor step(s).`);
+      } catch (error) {
+        $('readyPill').textContent = 'NEEDS ATTENTION';
+        status(error.message, true);
+      } finally {
+        $('generate').disabled = false;
+      }
+    });
+    $('download').addEventListener('click', () => {
+      if (!generated) return;
+      const blob = new Blob([JSON.stringify(generated, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const base = (generated.dataflow.name || 'qlik-data-flow').replace(/[^a-z0-9_-]+/gi, '_');
+      a.href = url; a.download = `${base}.dfw`; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+    loadDefaultTemplate();
+  </script>
+</body>
+</html>
